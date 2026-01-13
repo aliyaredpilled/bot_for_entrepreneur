@@ -397,7 +397,7 @@ Feature: Final response replaces status
 
 ## 7. Форматирование
 
-### 7.1 [ ] Markdown → Telegram HTML конвертер
+### 7.1 [~] Markdown → Telegram HTML конвертер
 **Описание:** Преобразование markdown в поддерживаемый Telegram HTML
 
 ```gherkin

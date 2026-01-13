@@ -12,6 +12,7 @@ from aiogram.enums import ParseMode
 from archiver import ChatArchiver
 from agent import ClaudeAgent
 from formatter import markdown_to_telegram_html
+from file_sender import parse_file_paths, mask_file_paths
 
 # Настройка логирования
 logging.basicConfig(
@@ -155,13 +156,23 @@ async def handle_agent_query(message: Message, archiver: ChatArchiver):
             on_status_update=update_status
         )
 
+        # Парсим пути к файлам в ответе (задача 5.1)
+        found_files = parse_file_paths(response, chat_id)
+
+        # Маскируем длинные пути в ответе (задача 5.3)
+        masked_response = mask_file_paths(response)
+
         # Форматируем markdown → HTML (задача 7.1)
-        formatted_response = markdown_to_telegram_html(response)
+        formatted_response = markdown_to_telegram_html(masked_response)
 
         # Заменяем статус на финальный ответ с HTML-форматированием
         await status_msg.edit_text(formatted_response, parse_mode=ParseMode.HTML)
 
         logger.info(f"[AGENT] Response sent to chat_id={chat_id}")
+
+        # TODO (задача 5.2): Отправка найденных файлов
+        if found_files:
+            logger.info(f"[FILES] Found {len(found_files)} files to send: {found_files}")
 
     except Exception as e:
         logger.error(f"[AGENT] Error processing query: {e}", exc_info=True)

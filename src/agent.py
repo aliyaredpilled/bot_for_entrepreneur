@@ -5,6 +5,7 @@
 
 import os
 import time
+import asyncio
 import logging
 from typing import Dict, Optional
 from claude_agent_sdk import (
@@ -20,6 +21,9 @@ logger = logging.getLogger(__name__)
 
 # Таймаут сессии в секундах (30 минут)
 SESSION_TIMEOUT = int(os.getenv('SESSION_TIMEOUT', 30 * 60))
+
+# Минимальное время показа статуса в секундах (задача 6.2)
+MIN_STATUS_DISPLAY_TIME = float(os.getenv('MIN_STATUS_DISPLAY_TIME', 2.0))
 
 
 class ClaudeAgent:
@@ -211,7 +215,7 @@ class ClaudeAgent:
         on_status_update=None
     ) -> str:
         """
-        Отправка запроса агенту с обработкой стриминга (задача 3.2, 3.4)
+        Отправка запроса агенту с обработкой стриминга (задача 3.2, 3.4, 6.2)
 
         Args:
             chat_id: ID чата
@@ -234,6 +238,28 @@ class ClaudeAgent:
         all_text_blocks = []
         tools_used = []
 
+        # Throttling для статусов (задача 6.2)
+        last_status_time = 0.0
+
+        async def throttled_status_update(text: str):
+            """Обновление статуса с минимальным временем показа (задача 6.2)"""
+            nonlocal last_status_time
+
+            if on_status_update:
+                # Вычисляем сколько времени прошло с последнего обновления
+                current_time = time.time()
+                elapsed = current_time - last_status_time
+
+                # Если прошло меньше MIN_STATUS_DISPLAY_TIME, ждём
+                if last_status_time > 0 and elapsed < MIN_STATUS_DISPLAY_TIME:
+                    wait_time = MIN_STATUS_DISPLAY_TIME - elapsed
+                    logger.debug(f"[STATUS_THROTTLE] Waiting {wait_time:.2f}s (elapsed: {elapsed:.2f}s)")
+                    await asyncio.sleep(wait_time)
+
+                # Обновляем статус
+                await on_status_update(text)
+                last_status_time = time.time()
+
         async for msg in client.receive_response():
             if isinstance(msg, AssistantMessage):
                 for block in msg.content:
@@ -242,18 +268,17 @@ class ClaudeAgent:
                         # Сохраняем текст
                         all_text_blocks.append(block.text)
 
-                        # Показываем короткие реплики как статусы
-                        if on_status_update and len(block.text) < 200:
-                            await on_status_update(f"💭 {block.text}")
+                        # Показываем короткие реплики как статусы (задача 6.4)
+                        if len(block.text) < 200:
+                            await throttled_status_update(f"💭 {block.text}")
 
                     elif isinstance(block, ToolUseBlock):
-                        # Вызов инструмента - показываем что делает
+                        # Вызов инструмента - показываем что делает (задача 6.3)
                         tools_used.append(block.name)
                         description = self.get_tool_description(block)
                         logger.info(f"[TOOL] {block.name} in chat_id={chat_id}")
 
-                        if on_status_update:
-                            await on_status_update(description)
+                        await throttled_status_update(description)
 
             elif isinstance(msg, ResultMessage):
                 # Финал - логируем статистику

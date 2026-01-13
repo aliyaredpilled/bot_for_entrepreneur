@@ -130,4 +130,115 @@
              - Протестировано: фото и документы успешно сохраняются
              - Механизм обработки дубликатов работает корректно
 
+[2026-01-13] 🧪 BDD TEST REPORT: Архивация текста (1.1-1.3)
+
+             ═══════════════════════════════════════════════════════════════
+             Feature 1.1: Chat directory creation
+             ═══════════════════════════════════════════════════════════════
+
+             Scenario: New chat creates directory structure
+               Status: ✅ PASSED
+
+               Given a message arrives from chat_id=-5022916429
+                 And directory /app/chat_archive/chat_-5022916429/ does not exist
+               When the bot processes the message
+               Then directory /app/chat_archive/chat_-5022916429/ is created
+                 And subdirectory media/ exists
+                 And subdirectory agent_files/ exists
+                 And file history.txt exists
+
+               Evidence:
+                 $ docker exec telegram-ai-bot ls -la /app/chat_archive/chat_-5022916429/
+                 drwxr-xr-x agent_files/
+                 drwxr-xr-x media/
+                 -rw-r--r-- history.txt
+
+               Logs: [ARCHIVE] Directory structure created: /app/chat_archive/chat_-5022916429
+
+             ═══════════════════════════════════════════════════════════════
+             Feature 1.2: Text message archiving
+             ═══════════════════════════════════════════════════════════════
+
+             Scenario 1: Text message is saved to history
+               Status: ✅ PASSED
+
+               Given user "Aliya" sends message "Привет! Тестирую архивацию текста 🎯"
+                 And current time is "13.01 16:52"
+               When the message is processed
+               Then history.txt contains line "[13.01 16:52] Aliya: Привет! Тестирую архивацию текста 🎯"
+
+               Evidence:
+                 $ docker exec telegram-ai-bot cat /app/chat_archive/chat_-5022916429/history.txt
+                 [13.01 16:52] Aliya: Привет! Тестирую архивацию текста 🎯
+
+               Logs: [ARCHIVE] Saved text message from Aliya in chat_id=-5022916429
+
+             Scenario 2: Multiple messages are appended
+               Status: ✅ PASSED
+
+               Given history.txt already has 1 line
+               When new events arrive (title change, photo change, user join)
+               Then history.txt has 4 lines total
+                 And new lines are at the end
+
+               Evidence:
+                 Line 1: [13.01 16:52] Aliya: Привет! Тестирую архивацию текста 🎯
+                 Line 2: [13.01 17:01] ✏️ Название изменено: Алия и бот - Тест архивации
+                 Line 3: [13.01 17:06] 🖼️ Фото чата изменено
+                 Line 4: [13.01 17:07] 👤 Тимофей присоединился
+
+             ═══════════════════════════════════════════════════════════════
+             Feature 1.3: System events logging
+             ═══════════════════════════════════════════════════════════════
+
+             Scenario 1: Chat title changed
+               Status: ✅ PASSED
+
+               Given chat title changes to "Алия и бот - Тест архивации"
+               When event is processed
+               Then history.txt contains "[13.01 17:01] ✏️ Название изменено: Алия и бот - Тест архивации"
+
+               Evidence: Line 2 in history.txt matches exactly
+
+               Logs: [ARCHIVE] Logged system event 'title_changed' in chat_id=-5022916429
+
+             Scenario 2: Chat photo changed
+               Status: ✅ PASSED
+
+               Given chat photo is changed via Telegram UI
+               When event is processed
+               Then history.txt contains "[13.01 17:06] 🖼️ Фото чата изменено"
+
+               Evidence: Line 3 in history.txt matches exactly
+
+               Logs: [ARCHIVE] Logged system event 'photo_changed' in chat_id=-5022916429
+
+             Scenario 3: User joins chat
+               Status: ✅ PASSED
+
+               Given user "Тимофей" joins the chat
+               When event is processed
+               Then history.txt contains "[13.01 17:07] 👤 Тимофей присоединился"
+
+               Evidence: Line 4 in history.txt matches exactly
+
+               Logs: [ARCHIVE] Logged system event 'user_joined' in chat_id=-5022916429
+
+             ═══════════════════════════════════════════════════════════════
+             TEST SUMMARY
+             ═══════════════════════════════════════════════════════════════
+
+             Total Scenarios: 5
+             Passed: ✅ 5 (100%)
+             Failed: ❌ 0
+
+             Test Environment:
+               - Chat ID: -5022916429
+               - Bot: @useful_and_chill_bot
+               - Test Method: Integration testing with real Telegram chat
+               - Tools: userbot_tester, docker exec, real user actions
+
+             All BDD scenarios PASSED! 🎉
+             Code is production-ready.
+
 ================================================================================

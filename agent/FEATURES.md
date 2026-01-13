@@ -220,6 +220,60 @@ Feature: Agent tools
     And file is saved to agent_files/
 ```
 
+### 3.5 [ ] Улучшенный системный промпт
+**Описание:** Расширенный промпт с визуальной структурой, примерами кода и типичными задачами
+
+```gherkin
+Feature: Enhanced system prompt
+
+  Scenario: Visual folder tree in prompt
+    Given agent receives system prompt
+    When prompt is displayed
+    Then prompt contains ASCII tree structure of folders
+    And shows chat_dir/, history.txt, media/, agent_files/
+
+  Scenario: History format explained
+    Given agent needs to parse history
+    When system prompt is read
+    Then prompt contains format example: "[DD.MM HH:MM] Name: message"
+    And shows file format: "📄 filename → path"
+
+  Scenario: Code examples for common tasks
+    Given agent needs to work with Excel
+    When system prompt is read
+    Then prompt contains pandas read_excel example
+    And contains matplotlib savefig example with full paths
+    And contains os.makedirs for agent_files/
+
+  Scenario: Tool usage examples
+    Given agent needs to use tools
+    When system prompt is read
+    Then prompt shows Read example with full path
+    And shows Grep example with pattern
+    And shows Glob example for finding files
+    And shows Bash example for commands
+
+  Scenario: Auto-send files mechanism
+    Given agent creates file
+    When system prompt is read
+    Then prompt explains mentioning file path triggers auto-send
+    And shows example: "{agent_files_dir}/chart.png"
+
+  Scenario: Typical task patterns
+    Given agent receives common request
+    When system prompt is read
+    Then prompt contains "find mentions" pattern
+    And contains "analyze Excel" pattern
+    And contains "create report" pattern
+
+  Scenario: Good and bad examples
+    Given agent needs formatting guidance
+    When system prompt is read
+    Then prompt shows bad example (markdown tables)
+    And shows good example (emoji lists)
+    And explains why each is good/bad
+```
+
 ---
 
 ## 4. Сессии и память
@@ -547,14 +601,14 @@ Feature: Structured logging
 |--------|-------|--------|--------|
 | 1. Архивация текста | 4 | 3 | 🟡 |
 | 2. Архивация медиа | 3 | 3 | ✅ |
-| 3. AI-агент | 4 | 4 | ✅ |
+| 3. AI-агент | 5 | 4 | 🟡 |
 | 4. Сессии и память | 3 | 3 | ✅ |
 | 5. Отправка файлов | 3 | 3 | ✅ |
 | 6. UX: Live-статусы | 6 | 4 | 🟡 |
 | 7. Форматирование | 1 | 1 | ✅ |
 | 8. Docker | 2 | 2 | ✅ |
 | 9. Логирование | 1 | 0 | ⬜ |
-| **ИТОГО** | **27** | **23** | **85%** |
+| **ИТОГО** | **28** | **23** | **82%** |
 
 ---
 

@@ -63,6 +63,31 @@ Feature: System events logging
     Then history.txt contains "[DD.MM HH:MM] ✏️ Название изменено: Рабочий чат"
 ```
 
+### 1.4 [ ] Архивация ответов бота
+**Описание:** Ответы бота и отправленные им файлы сохраняются в историю
+
+```gherkin
+Feature: Bot responses archiving
+
+  Scenario: Bot text response is saved
+    Given bot sends text message "Нашёл 15 файлов в архиве"
+    And current time is "13.01 15:35"
+    When response is sent
+    Then history.txt contains "[13.01 15:35] 🤖 Бот: Нашёл 15 файлов в архиве"
+
+  Scenario: Bot sends file from agent_files
+    Given bot sends file "chart.png" from agent_files/
+    And current time is "13.01 15:36"
+    When file is sent
+    Then history.txt contains "[13.01 15:36] 🤖 Бот: 📊 chart.png → agent_files/chart.png"
+
+  Scenario: Bot sends multiple files
+    Given bot sends "report.xlsx" and "chart.png"
+    When files are sent
+    Then history.txt contains two lines with "🤖 Бот:" prefix
+    And both file paths are recorded
+```
+
 ---
 
 ## 2. Архивация медиа
@@ -520,7 +545,7 @@ Feature: Structured logging
 
 | Модуль | Задач | Готово | Статус |
 |--------|-------|--------|--------|
-| 1. Архивация текста | 3 | 3 | ✅ |
+| 1. Архивация текста | 4 | 3 | 🟡 |
 | 2. Архивация медиа | 3 | 3 | ✅ |
 | 3. AI-агент | 4 | 4 | ✅ |
 | 4. Сессии и память | 3 | 3 | ✅ |
@@ -529,7 +554,7 @@ Feature: Structured logging
 | 7. Форматирование | 1 | 1 | ✅ |
 | 8. Docker | 2 | 2 | ✅ |
 | 9. Логирование | 1 | 0 | ⬜ |
-| **ИТОГО** | **26** | **23** | **88%** |
+| **ИТОГО** | **27** | **23** | **85%** |
 
 ---
 

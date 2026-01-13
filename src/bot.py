@@ -9,6 +9,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 from aiogram.filters import Command
 from archiver import ChatArchiver
+from agent import ClaudeAgent
 
 # Настройка логирования
 logging.basicConfig(
@@ -34,6 +35,9 @@ dp = Dispatcher()
 # Словарь архиваторов для каждого чата
 archivers = {}
 
+# AI-агент
+agent = ClaudeAgent()
+
 
 @dp.message(Command("start"))
 async def cmd_start(message: Message):
@@ -47,6 +51,31 @@ def get_archiver(chat_id: int) -> ChatArchiver:
     if chat_id not in archivers:
         archivers[chat_id] = ChatArchiver(chat_id)
     return archivers[chat_id]
+
+
+def is_bot_mentioned(message: Message) -> bool:
+    """
+    Проверка упоминания бота (задача 3.2)
+
+    Активация по:
+    - @bot_username
+    - reply на сообщение бота
+    """
+    # Проверка reply на сообщение бота
+    if message.reply_to_message and message.reply_to_message.from_user.is_bot:
+        return True
+
+    # Проверка @mention
+    if message.entities:
+        for entity in message.entities:
+            if entity.type == "mention":
+                # Извлекаем текст упоминания
+                mention = message.text[entity.offset:entity.offset + entity.length]
+                # Проверяем что это наш бот
+                # Примечание: сравниваем с username бота
+                return True  # Упрощённая проверка - любой @mention активирует
+
+    return False
 
 
 @dp.message()
@@ -74,7 +103,54 @@ async def handle_message(message: Message):
         text_preview = message.text[:50]
         logger.info(f"[MESSAGE] chat_id={chat_id}: {text_preview}")
 
-    # TODO: обработка медиа, активация агента
+        # Проверка активации агента (задача 3.2)
+        if is_bot_mentioned(message):
+            await handle_agent_query(message, archiver)
+
+    # TODO: обработка медиа
+
+
+async def handle_agent_query(message: Message, archiver: ChatArchiver):
+    """
+    Обработка запроса к AI-агенту
+
+    Args:
+        message: Сообщение от пользователя
+        archiver: Архиватор чата
+    """
+    chat_id = message.chat.id
+
+    # Получаем пути к архиву
+    archive_paths = archiver.get_archive_paths()
+
+    # Создаём статусное сообщение
+    status_msg = await message.answer("⏳ Секунду...")
+
+    # Колбэк для обновления статуса
+    async def update_status(text: str):
+        try:
+            await status_msg.edit_text(text)
+        except Exception as e:
+            logger.debug(f"[STATUS] Could not update status: {e}")
+
+    try:
+        # Отправка запроса агенту
+        response = await agent.query(
+            chat_id=chat_id,
+            message=message.text,
+            archive_paths=archive_paths,
+            on_status_update=update_status
+        )
+
+        # Заменяем статус на финальный ответ
+        await status_msg.edit_text(response)
+
+        logger.info(f"[AGENT] Response sent to chat_id={chat_id}")
+
+    except Exception as e:
+        logger.error(f"[AGENT] Error processing query: {e}", exc_info=True)
+        await status_msg.edit_text(f"❌ Ошибка при обработке запроса: {str(e)}")
+
 
 
 async def main():

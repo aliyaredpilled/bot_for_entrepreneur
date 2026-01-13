@@ -34,7 +34,8 @@ def parse_file_paths(text: str, chat_id: int) -> List[str]:
 
     # 1. Поиск абсолютных путей
     # Паттерн: /app/chat_archive/chat_{id}/agent_files/filename.ext
-    absolute_pattern = r'/app/chat_archive/chat_\d+/agent_files/[^\s\'"<>|]+\.\w+'
+    # Поддерживаем отрицательные chat_id
+    absolute_pattern = r'/app/chat_archive/chat_-?\d+/agent_files/[^\s\'"<>|]+\.\w+'
     absolute_matches = re.findall(absolute_pattern, text)
 
     for path in absolute_matches:
@@ -90,6 +91,7 @@ def mask_file_paths(text: str) -> str:
     Заменяет:
     /app/chat_archive/chat_123/agent_files/report.xlsx -> report.xlsx
     /app/chat_archive/chat_123/media/photo.jpg -> photo.jpg
+    `/app/chat_archive/chat_123/agent_files/report.xlsx` -> `report.xlsx`
 
     Args:
         text: Исходный текст с путями
@@ -98,12 +100,14 @@ def mask_file_paths(text: str) -> str:
         Текст с замаскированными путями
     """
     # Паттерн для замены: /app/chat_archive/chat_{id}/{subdir}/filename.ext
-    pattern = r'/app/chat_archive/chat_\d+/(?:agent_files|media)/([^\s\'"<>|]+)'
+    # Поддерживаем отрицательные chat_id (группы начинаются с минуса)
+    # Включаем backtick в список stop-символов, чтобы правильно обрабатывать пути в backticks
+    pattern = r'/app/chat_archive/chat_-?\d+/(?:agent_files|media)/([^\s\'"<>|`]+)'
 
     def replace_with_filename(match):
         full_path = match.group(0)
         filename = match.group(1)
-        logger.debug(f"[PATH_MASK] Replacing {full_path} with {filename}")
+        logger.info(f"[PATH_MASK] Replacing {full_path} with {filename}")
         return filename
 
     masked_text = re.sub(pattern, replace_with_filename, text)

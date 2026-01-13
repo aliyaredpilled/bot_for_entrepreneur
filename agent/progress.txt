@@ -17,11 +17,11 @@
                                  ПРОГРЕСС
 ================================================================================
 
-Готово:     18 / 25 задач (72%)
+Готово:     19 / 25 задач (76%)
 В работе:   0
-Осталось:   7
+Осталось:   6
 
-[█████████████████░░░] 72%
+[██████████████████░░] 76%
 
 ================================================================================
                               ЗАВЕРШЁННЫЕ ЗАДАЧИ
@@ -602,6 +602,12 @@
 
 ================================================================================
 
+[2026-01-13] ✅ Завершена маскировка путей (5.3) + весь модуль 5!
+             - Исправлен regex: поддержка отрицательных chat_id (chat_-?\d+)
+             - Backticks в путях обрабатываются корректно
+             - /app/chat_archive/chat_-5022916429/agent_files/report.csv → report.csv
+             - Модуль 5 «Отправка файлов» полностью завершён: 3/3 задачи ✅
+
 [2026-01-13] ✅ Завершена отправка файлов (5.2)
              - Реализована отправка по типу файла
              - PNG/JPG → send_photo(), MP4/AVI → send_video(), CSV/TXT → send_document()
@@ -862,5 +868,92 @@
              All BDD scenarios PASSED! 🎉📤
              File sending by type is production-ready.
              Next: Task 5.3 - Path masking (already implemented in 5.1)
+
+================================================================================
+
+[2026-01-13] ✅ Завершена маскировка путей (5.3)
+             - Исправлен regex для поддержки отрицательных chat_id
+             - Добавлена поддержка backticks в путях
+             - Протестировано: /app/.../report.csv → report.csv
+             - Логирование маскировки работает корректно
+
+
+[2026-01-13] 🧪 BDD TEST REPORT: Маскировка путей (5.3)
+
+             ═══════════════════════════════════════════════════════════════
+             Feature 5.3: Path masking
+             ═══════════════════════════════════════════════════════════════
+
+             Scenario 1: Long path replaced with filename
+               Status: ✅ PASSED
+
+               Given agent response contains "/app/chat_archive/chat_-5022916429/agent_files/report.csv"
+               When response is formatted by mask_file_paths()
+               Then user sees "report.csv" instead of full path
+                 And PATH_MASK logs the replacement
+
+               Evidence:
+                 Agent wrote: "📁 **Полный путь к файлу:** `/app/chat_archive/chat_-5022916429/agent_files/report.csv`"
+
+                 Logs: [PATH_MASK] Replacing /app/chat_archive/chat_-5022916429/agent_files/report.csv with report.csv
+
+                 User received: "📁 **Полный путь к файлу:** `report.csv`"
+
+             Scenario 2: Paths in backticks are masked correctly
+               Status: ✅ PASSED
+
+               Given agent response contains path in backticks: "`/app/chat_archive/.../file.txt`"
+               When mask_file_paths() processes text
+               Then backticks are preserved: "`file.txt`"
+                 And only path is replaced
+
+               Evidence:
+                 Regex includes backtick as stop character: [^\s\'"<>|`]+
+                 This prevents regex from capturing backtick itself
+                 Result: `/app/.../file.txt` → `file.txt` (backticks preserved)
+
+             Scenario 3: Negative chat IDs supported
+               Status: ✅ PASSED
+
+               Given chat_id is -5022916429 (negative - group chat)
+               When path contains chat_-5022916429
+               Then regex matches correctly: chat_-?\d+
+                 And path is masked successfully
+
+               Evidence:
+                 Code: file_sender.py line 104
+                       pattern = r'/app/chat_archive/chat_-?\d+/...'
+                       -? means optional minus sign
+
+                 Before fix: regex only matched \d+ (failed for negative IDs)
+                 After fix: works for both positive and negative chat IDs
+
+             ═══════════════════════════════════════════════════════════════
+             TEST SUMMARY
+             ═══════════════════════════════════════════════════════════════
+
+             Total Scenarios: 3
+             Passed: ✅ 3 (100%)
+
+             Critical Features:
+               ✅ Long system paths replaced with filenames
+               ✅ Paths in backticks handled correctly
+               ✅ Negative chat IDs supported (groups)
+               ✅ Logging of replacements for debugging
+
+             Test Environment:
+               - Chat ID: -5022916429 (group chat)
+               - Bot: @useful_and_chill_bot
+               - Test Method: Real Telegram integration testing
+               - Test File: report.csv
+
+             Bug Fixes:
+               1. Added backtick to stop characters: [^\s\'"<>|`]+
+               2. Added support for negative IDs: chat_-?\d+
+               3. Changed logging from debug to info for visibility
+
+             All BDD scenarios PASSED! 🎉🎭
+             Path masking is production-ready.
+             MODULE 5 (File Sending) COMPLETE: 3/3 tasks ✅
 
 ================================================================================

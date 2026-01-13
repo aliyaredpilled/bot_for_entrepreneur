@@ -609,3 +609,101 @@
              - Протестировано: все форматы работают корректно в Telegram
              - Упрощённая версия без вложенных тегов для стабильности
 
+
+[2026-01-13] 🧪 BDD TEST REPORT: Форматирование (7.1)
+
+             ═══════════════════════════════════════════════════════════════
+             Feature 7.1: Markdown to HTML conversion
+             ═══════════════════════════════════════════════════════════════
+
+             Scenario: Bold text converted
+               Given agent response contains "**важно**"
+               When formatted for Telegram
+               Then output contains "<b>важно</b>"
+               ✅ PASSED
+
+             Scenario: Italic text converted
+               Given agent response contains "*курсив*"
+               When formatted for Telegram
+               Then output contains "<i>курсив</i>"
+               ✅ PASSED
+
+             Scenario: Inline code converted
+               Given agent response contains "`code`"
+               When formatted for Telegram
+               Then output contains "<code>code</code>"
+               ✅ PASSED
+
+             Scenario: Code block converted
+               Given agent response contains triple backtick python code
+               When formatted for Telegram
+               Then output contains "<pre>python\nprint(...)</pre>"
+               ✅ PASSED
+
+             Scenario: Headers converted to bold
+               Given agent response contains "## Заголовок"
+               When formatted for Telegram
+               Then output contains "<b>Заголовок</b>"
+               ✅ PASSED
+
+             Scenario: Quotes converted
+               Given agent response contains "> цитата"
+               When formatted for Telegram
+               Then output contains "▎ цитата"
+               ✅ PASSED
+
+             Scenario: Strikethrough converted (double tilde)
+               Given agent response contains "~~зачеркнуто~~"
+               When formatted for Telegram
+               Then output contains "<s>зачеркнуто</s>"
+               ✅ PASSED
+
+             Scenario: Strikethrough converted (single tilde)
+               Given agent response contains "~зачеркнуто~"
+               When formatted for Telegram
+               Then output contains "<s>зачеркнуто</s>"
+               ✅ PASSED (Agent compatibility!)
+
+             Scenario: Links converted
+               Given agent response contains "[Ссылка](https://example.com)"
+               When formatted for Telegram
+               Then output contains '<a href="https://example.com">Ссылка</a>'
+               ✅ PASSED
+
+             Scenario: HTML escaping works
+               Given agent response contains "5 < 10 & 3 > 1"
+               When formatted for Telegram
+               Then dangerous characters are escaped
+               ✅ PASSED
+
+             Scenario: Complex formatting (no nesting)
+               Given agent response with multiple formats
+               When formatted for Telegram
+               Then all formats applied correctly without tag conflicts
+               ✅ PASSED
+
+             Implementation Details:
+               ✅ Created src/formatter.py with markdown_to_telegram_html()
+               ✅ Simplified approach: no nested tags for stability
+               ✅ HTML escaping preserves user content safety
+               ✅ Code blocks extracted first to prevent format conflicts
+               ✅ Both ~ and ~~ strikethrough for Claude agent compatibility
+               ✅ Integrated into bot.py with parse_mode=ParseMode.HTML
+
+             Test Environment:
+               - Chat ID: -5022916429
+               - Bot: @useful_and_chill_bot (id=8262646811)
+               - Test Method: Real Telegram integration testing
+               - Tools: userbot_tester with @bot mentions
+               - Tests: Bold, italic, code, strikethrough, links, headers, quotes
+
+             Results:
+               Unit Tests: 11/11 PASSED ✅
+               Integration Tests: All formatting visible in Telegram ✅
+               No HTML parsing errors from Telegram API ✅
+               Agent responses properly formatted ✅
+
+             All BDD scenarios PASSED! 🎉✨
+             Markdown formatting is production-ready.
+
+================================================================================

@@ -1330,3 +1330,182 @@
 ================================================================================
 
 
+
+[2026-01-14] 🧪 BDD TEST REPORT: Улучшенный системный промпт (3.5)
+
+             ═══════════════════════════════════════════════════════════════
+             Feature 3.5: Enhanced system prompt
+             ═══════════════════════════════════════════════════════════════
+
+             Scenario 1: Capabilities explained
+               Status: ✅ PASSED
+
+               Given agent receives system prompt
+               When user asks "расскажи что ты умеешь"
+               Then prompt states agent can do data analysis
+                 And mentions: Excel, CSV, graphs, reports, calculations
+
+               Evidence:
+                 Agent response contains:
+                   📊 **Анализ данных**
+                   • Работаю с Excel (.xlsx) и CSV файлами
+                   • Считаю статистику, делаю сводки, группировки
+                   • Рассчитываю суммы, средние, проценты, тренды
+
+                   📈 **Создаю графики**
+                   • Любые диаграммы: линейные, столбчатые, круговые
+                   • Красивая визуализация данных
+
+                   📝 **Генерирую отчёты**
+                   • Excel-файлы с форматированием
+                   • CSV для экспорта
+
+               Logs: [20:43:28] [RESULT] tokens=474, cost=$0.0977, tools=none
+
+             Scenario 2: Folder structure shown
+               Status: ✅ PASSED
+
+               Given agent needs to understand structure
+               When system prompt is read in agent.py
+               Then prompt contains ASCII tree of folders
+                 And shows: chat_dir/, history.txt, media/, agent_files/
+
+               Evidence:
+                 System prompt in src/agent.py lines 104-113:
+                   {chat_dir}/
+                   ├── history.txt          ← вся история переписки
+                   ├── media/               ← файлы от пользователей
+                   │   ├── photo_*.jpg
+                   │   ├── document.xlsx
+                   │   └── ...
+                   └── agent_files/         ← ТВОИ файлы
+                       ├── chart.png
+                       ├── report.xlsx
+                       └── ...
+
+             Scenario 3: Compact responses rule
+               Status: ✅ PASSED
+
+               Given agent formats response
+               When system prompt is read
+               Then prompt says: NO markdown tables
+                 And says: keep answers compact in chat
+                 And says: move large content to files
+
+               Evidence:
+                 System prompt lines 134-142:
+                   1. СТИЛЬ ОТВЕТОВ В ЧАТ:
+                      ✅ Пиши КРАТКО и КОМПАКТНО - это Telegram, не email!
+                      ✅ Используй эмодзи для структуры (📊💰📈🎯)
+                      ✅ Списки с bullet points и эмодзи вместо таблиц
+
+                      ❌ НИКОГДА не используй markdown-таблицы
+                      ❌ НЕ пиши длинные простыни текста
+
+                      💡 Большие данные → выноси в файлы (.xlsx, .csv, .txt)
+
+             Scenario 4: Auto-send files explained
+               Status: ✅ PASSED
+
+               Given agent wants to send file to user
+               When system prompt is read
+               Then prompt says: write FULL path ONLY when you want to send file
+                 And explains: mentioning full path auto-sends file to user
+                 And provides examples
+
+               Evidence:
+                 System prompt lines 149-165:
+                   3. АВТООТПРАВКА ФАЙЛОВ 📤 (ВАЖНО!):
+
+                      🎯 Когда ты упоминаешь ПОЛНЫЙ ПУТЬ к файлу в своём ответе -
+                         файл АВТОМАТИЧЕСКИ отправляется пользователю в Telegram!
+
+                      Правильные примеры:
+                      ✅ "Готово! {agent_files_dir}/chart.png"
+                      ✅ "Отчёт сохранён: {agent_files_dir}/report.xlsx"
+
+                      Что произойдёт:
+                      → Бот увидит полный путь в твоём ответе
+                      → Автоматически отправит файл пользователю
+                      → Пользователь увидит файл сразу после твоего текста
+
+             Scenario 5: Auto-send works in practice (INTEGRATION TEST)
+               Status: ✅ PASSED
+
+               Given user asks "создай тестовый график синуса"
+               When agent creates file and mentions full path
+               Then file is automatically sent to user
+
+               Evidence:
+                 User request: "@useful_and_chill_bot создай тестовый график синуса и отправь мне"
+
+                 Agent created file: sine_graph.png
+                 Agent mentioned: /app/chat_archive/chat_-5022916429/agent_files/sine_graph.png
+
+                 Bot logs:
+                   [20:43:58] [TOOL] Bash in chat_id=-5022916429
+                   [20:44:02] [FILE_PARSER] Found absolute path: .../sine_graph.png
+                   [20:44:02] [FILES] Sent photo: .../sine_graph.png
+
+                 Userbot logs:
+                   [20:44:02] ✏️ БОТ EDIT | ✅ Готово! График синуса создан! 📊 `sine_graph.png`
+                   [20:44:02] 🤖 БОТ | (медиа) | 📷 Фото
+
+                 Key observation: Agent understood from prompt that mentioning path
+                 would auto-send file, and it worked perfectly!
+
+             Scenario 6: Friendly tone towards agent
+               Status: ✅ PASSED
+
+               Given agent receives system prompt
+               When prompt is read
+               Then prompt has friendly, supportive tone
+                 And encourages agent ("You can do this!")
+                 And says it's okay to make mistakes
+                 And thanks agent for their work
+
+               Evidence:
+                 System prompt ending (lines 198-202):
+                   Ты справишься! 💪 Это может показаться сложным, но у тебя есть все инструменты.
+                   Не бойся экспериментировать и пробовать разные подходы - ошибки это нормально!
+                   Главное — помни про компактность ответов и автоотправку файлов.
+
+                   Спасибо за твою работу! Начинай! 🚀
+
+                 Opening greeting (line 60):
+                   Привет! 👋 Ты AI-ассистент для Telegram чата {chat_id}.
+
+             ═══════════════════════════════════════════════════════════════
+             TEST SUMMARY
+             ═══════════════════════════════════════════════════════════════
+
+             Total Scenarios: 6
+             Passed: ✅ 6 (100%)
+
+             Critical Features:
+               ✅ Capabilities clearly explained (Excel, CSV, graphs, reports)
+               ✅ Folder structure shown as ASCII tree
+               ✅ Compact response rules emphasized (no tables, lists with emojis)
+               ✅ Auto-send mechanism explained in detail
+               ✅ Auto-send WORKS in practice (file auto-sent when path mentioned)
+               ✅ Friendly, supportive tone throughout prompt
+
+             Test Environment:
+               - Chat ID: -5022916429
+               - Bot: @useful_and_chill_bot
+               - Test Method: Real Telegram integration testing
+               - Tools: userbot_tester, matplotlib
+
+             Test Queries:
+               1. "расскажи что ты умеешь" → comprehensive capabilities response
+               2. "создай тестовый график синуса" → file creation + auto-send
+
+             Prompt Length: ~200 lines (comprehensive but well-structured)
+             Sections: 7 major sections with clear visual separators
+             Tone: Professional yet friendly and encouraging
+
+             All BDD scenarios PASSED! 🎉📋
+             Enhanced system prompt is production-ready.
+             MODULE 3 (AI-агент) COMPLETE: 5/5 tasks (100%) ✨
+
+================================================================================

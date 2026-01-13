@@ -3,28 +3,27 @@
 ================================================================================
 
 Последнее обновление: 2026-01-14
-Текущий статус: Завершена задача 6.6, осталась 1 задача (9.1 Логирование)
+Текущий статус: ✨ ВСЕ ЗАДАЧИ ЗАВЕРШЕНЫ! Проект готов на 100% ✨
 
 ================================================================================
                               ТЕКУЩАЯ ЗАДАЧА
 ================================================================================
 
 Задача: -
-Статус: Ожидание начала работы
+Статус: ✨ Все задачи завершены! ✨
 Агент:  -
 
 ================================================================================
                                  ПРОГРЕСС
 ================================================================================
 
-Готово:     27 / 28 задач (96%)
+Готово:     28 / 28 задач (100%)
 В работе:   0
-Осталось:   1
+Осталось:   0
 
-[███████████████████▓] 96%
+[████████████████████] 100% 🎉
 
-Осталось:
-- [ ] 9.1 Логирование
+Все задачи выполнены!
 
 ================================================================================
                               ЗАВЕРШЁННЫЕ ЗАДАЧИ
@@ -1603,3 +1602,141 @@
              ✨ MODULE 6 (UX: Live-статусы) COMPLETE: 6/6 tasks (100%) ✨
 
 ================================================================================
+
+[2026-01-14] ✅ Завершена задача 9.1 - Структурированные логи в stdout
+             - Логирование сессий: [SESSION] New/Continue session
+             - Логирование запросов: [QUERY] chat_id=X: текст запроса
+             - Логирование инструментов: [TOOL] ToolName in chat_id=X
+             - Логирование результатов: [RESULT] tokens=N, cost=$X, tools=List
+             - Всё уже было реализовано ранее, задача прошла тестирование
+
+
+[2026-01-14] 🧪 BDD TEST REPORT: Структурированные логи (9.1)
+
+             ═══════════════════════════════════════════════════════════════
+             Feature 9.1: Structured logging
+             ═══════════════════════════════════════════════════════════════
+
+             Scenario 1: Session start logged
+               Status: ✅ PASSED
+
+               Given new session is created for chat_id=-5022916429
+               When log is written
+               Then stdout contains "[SESSION] New session for chat_id=-5022916429"
+
+               Evidence:
+                 Bot logs:
+                   [20:52:10] [SESSION] New session for chat_id=-5022916429
+
+                 Code: agent.py:271
+                   logger.info(f"[SESSION] New session for chat_id={chat_id}")
+
+             Scenario 2: Session continue logged
+               Status: ✅ PASSED
+
+               Given existing session for chat_id=-5022916429
+               When new message arrives within timeout
+               Then stdout contains "[SESSION] Continue session for chat_id=-5022916429"
+
+               Evidence:
+                 Bot logs:
+                   [20:56:23] [SESSION] Continue session for chat_id=-5022916429
+
+                 Code: agent.py:286
+                   logger.info(f"[SESSION] Continue session for chat_id={chat_id}")
+
+             Scenario 3: Query logged
+               Status: ✅ PASSED
+
+               Given user sends "@useful_and_chill_bot посчитай строки"
+               When query is processed
+               Then stdout contains "[QUERY] chat_id=-5022916429: посчитай строки..."
+
+               Evidence:
+                 Bot logs:
+                   [20:56:23] [QUERY] chat_id=-5022916429: @useful_and_chill_bot посчитай строки и найди слово бот
+
+                 Code: agent.py:310
+                   logger.info(f"[QUERY] chat_id={chat_id}: {message[:100]}")
+
+             Scenario 4: Tool calls logged
+               Status: ✅ PASSED
+
+               Given agent calls Bash, then Grep
+               When tools execute
+               Then stdout contains "[TOOL] Bash → [TOOL] Grep"
+
+               Evidence:
+                 Bot logs:
+                   [20:56:27] [TOOL] Bash in chat_id=-5022916429
+                   [20:56:28] [TOOL] Grep in chat_id=-5022916429
+
+                 Code: agent.py:359
+                   tools_used.append(block.name)
+                   description = self.get_tool_description(block)
+                   await throttled_status_update(description)
+                   logger.info(f"[TOOL] {block.name} in chat_id={chat_id}")
+
+             Scenario 5: Cost and tokens logged
+               Status: ✅ PASSED
+
+               Given request used 332 tokens and cost $0.0789
+               When request completes
+               Then stdout contains "[RESULT] tokens=332, cost=$0.0789, tools=Bash,Grep"
+
+               Evidence:
+                 Bot logs:
+                   [20:56:33] [RESULT] chat_id=-5022916429, tokens=332, cost=$0.0789, tools=Bash,Grep
+
+                 Code: agent.py:373-378
+                   logger.info(
+                       f"[RESULT] chat_id={chat_id}, "
+                       f"tokens={total_tokens}, "
+                       f"cost=${msg.total_cost_usd:.4f}, "
+                       f"tools={','.join(tools_used) if tools_used else 'none'}"
+                   )
+
+             ═══════════════════════════════════════════════════════════════
+             TEST SUMMARY
+             ═══════════════════════════════════════════════════════════════
+
+             Total Scenarios: 5
+             Passed: ✅ 5 (100%)
+
+             Critical Features:
+               ✅ Session lifecycle logged (New/Continue)
+               ✅ User queries logged with chat_id
+               ✅ Tool calls logged sequentially
+               ✅ Results logged with tokens, cost, and tools used
+               ✅ All logs go to stdout (docker logs)
+
+             Log Format Examples:
+               [SESSION] New session for chat_id=123
+               [SESSION] Continue session for chat_id=123
+               [QUERY] chat_id=123: user query text
+               [TOOL] ToolName in chat_id=123
+               [RESULT] chat_id=123, tokens=N, cost=$X.XXXX, tools=Tool1,Tool2
+
+             Test Environment:
+               - Chat ID: -5022916429
+               - Bot: @useful_and_chill_bot
+               - Test Method: Real Telegram integration testing
+               - Test queries: Various with Bash, Grep, multiple tools
+
+             Additional Logs Available:
+               [ARCHIVE] - Archiving operations
+               [MESSAGE] - Incoming messages
+               [AGENT] - Agent lifecycle
+               [FILE_PARSER] - File path parsing
+               [FILES] - File sending
+               [STATUS] - Status updates
+               [STARTUP] - Bot initialization
+               [CONFIG] - Configuration
+
+             All BDD scenarios PASSED! 🎉📊
+             Structured logging is production-ready!
+
+             ✨ MODULE 9 (Логирование) COMPLETE: 1/1 tasks (100%) ✨
+
+================================================================================
+

@@ -6,13 +6,13 @@ Telegram AI Bot with archiving and Claude Agent SDK integration
 import os
 import logging
 from aiogram import Bot, Dispatcher
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
 from aiogram.enums import ParseMode
 from archiver import ChatArchiver
 from agent import ClaudeAgent
 from formatter import markdown_to_telegram_html
-from file_sender import parse_file_paths, mask_file_paths
+from file_sender import parse_file_paths, mask_file_paths, get_file_type
 
 # Настройка логирования
 logging.basicConfig(
@@ -170,9 +170,29 @@ async def handle_agent_query(message: Message, archiver: ChatArchiver):
 
         logger.info(f"[AGENT] Response sent to chat_id={chat_id}")
 
-        # TODO (задача 5.2): Отправка найденных файлов
+        # Отправка найденных файлов (задача 5.2)
         if found_files:
             logger.info(f"[FILES] Found {len(found_files)} files to send: {found_files}")
+
+            for filepath in found_files:
+                try:
+                    file_type = get_file_type(filepath)
+                    input_file = FSInputFile(filepath)
+
+                    if file_type == 'photo':
+                        await message.answer_photo(photo=input_file)
+                        logger.info(f"[FILES] Sent photo: {filepath}")
+
+                    elif file_type == 'video':
+                        await message.answer_video(video=input_file)
+                        logger.info(f"[FILES] Sent video: {filepath}")
+
+                    else:  # document
+                        await message.answer_document(document=input_file)
+                        logger.info(f"[FILES] Sent document: {filepath}")
+
+                except Exception as e:
+                    logger.error(f"[FILES] Error sending file {filepath}: {e}", exc_info=True)
 
     except Exception as e:
         logger.error(f"[AGENT] Error processing query: {e}", exc_info=True)

@@ -55,8 +55,12 @@ cat agent/telegram_userbot_tips.md
 
 ### 4. Реализуй фичу
 
-- Работай в Docker-контейнере
-- Используй `docker compose` (без тире!)
+**Технологии:**
+- **Telegram бот** — пиши на **aiogram 3.x** (не telethon, не python-telegram-bot)
+- **AI агент** — Claude Agent SDK
+- **Docker** — `docker compose` (без тире!)
+
+**Принципы:**
 - Следуй BDD сценариям из `agent/FEATURES.md`
 - Сверяйся с ТЗ в `agent/product_description.md`
 
@@ -67,12 +71,21 @@ docker compose build
 # Запуск
 docker compose up -d
 
-# Логи
-docker compose logs -f
+# Логи — используй tail чтобы не забивать контекст!
+docker compose logs --tail=50 bot        # последние 50 строк
+docker compose logs --tail=100 bot       # или 100 если нужно больше
+
+# Следить за логами в реальном времени (осторожно с контекстом!)
+docker compose logs -f --tail=20 bot     # follow с ограничением
 
 # Остановка
 docker compose down
 ```
+
+**Важно про логи:**
+- Всегда используй `--tail=N` чтобы контекстное окно оставалось просторным
+- Не делай `docker compose logs` без tail — это может вывести тысячи строк
+- Для отладки обычно хватает `--tail=50`
 
 ### 5. Протестируй
 

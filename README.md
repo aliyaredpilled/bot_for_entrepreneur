@@ -124,6 +124,7 @@ Feature: Text message archiving
 ## Технологии
 
 - **Python 3.11+**
+- **aiogram 3.x** — Telegram бот
 - **Claude Agent SDK** — AI-агент с инструментами (Read, Bash, Grep, Glob)
 - **Telethon** — userbot для тестирования
 - **Docker Compose** — оркестрация

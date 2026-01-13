@@ -58,6 +58,10 @@ class ChatArchiver:
         """Форматирование текущего времени в формат [DD.MM HH:MM]"""
         return datetime.now().strftime("[%d.%m %H:%M]")
 
+    def _generate_filename_timestamp(self) -> str:
+        """Генерация таймштампа для имени файла в формате YYYYMMDD_HHMMSS"""
+        return datetime.now().strftime("%Y%m%d_%H%M%S")
+
     def _get_user_name(self, user: Optional[User]) -> str:
         """
         Получение имени пользователя
@@ -195,3 +199,143 @@ class ChatArchiver:
             'agent_files_dir': str(self.agent_files_dir),
             'history_file': str(self.history_file),
         }
+
+    async def archive_photo(self, message: Message, bot):
+        """
+        Сохранение фото в media/ (задача 2.1)
+
+        Формат имени: photo_{timestamp}.jpg
+        В history.txt добавляется: 📷 photo_{timestamp}.jpg → media/photo_{timestamp}.jpg
+
+        Args:
+            message: Сообщение с фото
+            bot: Объект бота для скачивания файла
+        """
+        if not message.photo:
+            return
+
+        # Берем фото максимального качества (последнее в списке)
+        photo = message.photo[-1]
+        timestamp = self._generate_filename_timestamp()
+        filename = f"photo_{timestamp}.jpg"
+        filepath = self.media_dir / filename
+
+        # Скачивание файла
+        await bot.download(photo, destination=filepath)
+
+        # Запись в history.txt
+        timestamp_display = self._format_timestamp()
+        user_name = self._get_user_name(message.from_user)
+        line = f"{timestamp_display} {user_name}: 📷 {filename} → media/{filename}\n"
+
+        with open(self.history_file, 'a', encoding='utf-8') as f:
+            f.write(line)
+
+        logger.info(f"[ARCHIVE] Saved photo {filename} from {user_name} in chat_id={self.chat_id}")
+
+    async def archive_document(self, message: Message, bot):
+        """
+        Сохранение документа в media/ (задача 2.2)
+
+        Документ сохраняется с оригинальным именем.
+        Если файл существует, добавляется таймштамп: filename_{timestamp}.ext
+
+        Args:
+            message: Сообщение с документом
+            bot: Объект бота для скачивания файла
+        """
+        if not message.document:
+            return
+
+        document = message.document
+        original_filename = document.file_name or f"document_{self._generate_filename_timestamp()}"
+
+        # Проверка существования файла
+        filepath = self.media_dir / original_filename
+
+        if filepath.exists():
+            # Добавляем таймштамп к имени файла
+            timestamp = self._generate_filename_timestamp()
+            name_parts = original_filename.rsplit('.', 1)
+            if len(name_parts) == 2:
+                filename = f"{name_parts[0]}_{timestamp}.{name_parts[1]}"
+            else:
+                filename = f"{original_filename}_{timestamp}"
+            filepath = self.media_dir / filename
+        else:
+            filename = original_filename
+
+        # Скачивание файла
+        await bot.download(document, destination=filepath)
+
+        # Запись в history.txt
+        timestamp_display = self._format_timestamp()
+        user_name = self._get_user_name(message.from_user)
+        line = f"{timestamp_display} {user_name}: 📄 {filename} → media/{filename}\n"
+
+        with open(self.history_file, 'a', encoding='utf-8') as f:
+            f.write(line)
+
+        logger.info(f"[ARCHIVE] Saved document {filename} from {user_name} in chat_id={self.chat_id}")
+
+    async def archive_voice(self, message: Message, bot):
+        """
+        Сохранение голосового сообщения в media/ (задача 2.3)
+
+        Формат имени: voice_{timestamp}.ogg
+
+        Args:
+            message: Сообщение с голосовым сообщением
+            bot: Объект бота для скачивания файла
+        """
+        if not message.voice:
+            return
+
+        voice = message.voice
+        timestamp = self._generate_filename_timestamp()
+        filename = f"voice_{timestamp}.ogg"
+        filepath = self.media_dir / filename
+
+        # Скачивание файла
+        await bot.download(voice, destination=filepath)
+
+        # Запись в history.txt
+        timestamp_display = self._format_timestamp()
+        user_name = self._get_user_name(message.from_user)
+        line = f"{timestamp_display} {user_name}: 🎤 {filename} → media/{filename}\n"
+
+        with open(self.history_file, 'a', encoding='utf-8') as f:
+            f.write(line)
+
+        logger.info(f"[ARCHIVE] Saved voice message {filename} from {user_name} in chat_id={self.chat_id}")
+
+    async def archive_video_note(self, message: Message, bot):
+        """
+        Сохранение видео-кружка в media/ (задача 2.3)
+
+        Формат имени: videonote_{timestamp}.mp4
+
+        Args:
+            message: Сообщение с видео-кружком
+            bot: Объект бота для скачивания файла
+        """
+        if not message.video_note:
+            return
+
+        video_note = message.video_note
+        timestamp = self._generate_filename_timestamp()
+        filename = f"videonote_{timestamp}.mp4"
+        filepath = self.media_dir / filename
+
+        # Скачивание файла
+        await bot.download(video_note, destination=filepath)
+
+        # Запись в history.txt
+        timestamp_display = self._format_timestamp()
+        user_name = self._get_user_name(message.from_user)
+        line = f"{timestamp_display} {user_name}: 🎥 {filename} → media/{filename}\n"
+
+        with open(self.history_file, 'a', encoding='utf-8') as f:
+            f.write(line)
+
+        logger.info(f"[ARCHIVE] Saved video note {filename} from {user_name} in chat_id={self.chat_id}")

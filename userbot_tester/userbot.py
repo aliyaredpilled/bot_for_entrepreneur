@@ -267,6 +267,21 @@ async def main():
                                 await client.add_chat_user(target_chat, value)
                                 log(f"👤 Добавлен участник: {value}")
 
+                            elif cmd == "send_photo":
+                                # value = путь к файлу
+                                await client.send_file(target_chat, value, caption="Тестовое фото")
+                                log(f"📷 Отправлено фото: {value}")
+
+                            elif cmd == "send_document":
+                                # value = путь к файлу
+                                await client.send_file(target_chat, value, caption="Тестовый документ")
+                                log(f"📄 Отправлен документ: {value}")
+
+                            elif cmd == "send_file":
+                                # value = путь к файлу
+                                await client.send_file(target_chat, value)
+                                log(f"📎 Отправлен файл: {value}")
+
                             else:
                                 log(f"⚠️ Неизвестная команда: {cmd}", "WARN")
                         else:

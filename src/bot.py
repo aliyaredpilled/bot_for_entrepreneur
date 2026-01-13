@@ -107,7 +107,18 @@ async def handle_message(message: Message):
         if is_bot_mentioned(message):
             await handle_agent_query(message, archiver)
 
-    # TODO: обработка медиа
+    # Архивация медиа (задачи 2.1-2.3)
+    if message.photo:
+        await archiver.archive_photo(message, bot)
+
+    if message.document:
+        await archiver.archive_document(message, bot)
+
+    if message.voice:
+        await archiver.archive_voice(message, bot)
+
+    if message.video_note:
+        await archiver.archive_video_note(message, bot)
 
 
 async def handle_agent_query(message: Message, archiver: ChatArchiver):

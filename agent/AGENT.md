@@ -20,7 +20,7 @@ ls -la
 cat agent/progress.txt
 
 # Техническое задание — что мы строим?
-cat agent/product_description.md
+cat agent/PRD.md
 
 # Список фич и BDD тесты — конкретные задачи
 cat agent/FEATURES.md
@@ -62,7 +62,7 @@ cat agent/telegram_userbot_tips.md
 
 **Принципы:**
 - Следуй BDD сценариям из `agent/FEATURES.md`
-- Сверяйся с ТЗ в `agent/product_description.md`
+- Сверяйся с ТЗ в `agent/PRD.md`
 
 ```bash
 # Сборка
@@ -180,7 +180,7 @@ bot_for_entrepreneur/
 │   ├── AGENT.md                 # ЭТА ИНСТРУКЦИЯ
 │   ├── FEATURES.md              # Фичи и BDD тесты
 │   ├── progress.txt             # Текущий статус
-│   ├── product_description.md   # Техническое задание
+│   ├── PRD.md                   # Техническое задание
 │   ├── claude_agent_sdk_tips.md # Советы по SDK
 │   └── telegram_userbot_tips.md # Советы по Telethon
 │

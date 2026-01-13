@@ -1,0 +1,15 @@
+services:
+  userbot:
+    build: .
+    container_name: telegram-userbot-tester
+    environment:
+      - TELETHON_API_ID=${TELETHON_API_ID}
+      - TELETHON_API_HASH=${TELETHON_API_HASH}
+      - TELETHON_STRING_SESSION=${TELETHON_STRING_SESSION}
+      - TARGET_CHAT_ID=${TARGET_CHAT_ID}
+      - BOT_USERNAME=${BOT_USERNAME}
+    volumes:
+      - ./logs:/app/userbot_logs
+    restart: unless-stopped
+    profiles:
+      - testing  # Запускается только с --profile testing

@@ -1,8 +1,12 @@
 # Environment variables
 .env
+**/.env
 
 # Chat archive folder
 chat_archive/
+
+# Userbot tester logs
+userbot_tester/logs/
 
 # Python
 __pycache__/

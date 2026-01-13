@@ -221,57 +221,36 @@ Feature: Agent tools
 ```
 
 ### 3.5 [ ] Улучшенный системный промпт
-**Описание:** Расширенный промпт с визуальной структурой, примерами кода и типичными задачами
+**Описание:** Добавить в промпт ключевые правила для работы агента
 
 ```gherkin
 Feature: Enhanced system prompt
 
-  Scenario: Visual folder tree in prompt
+  Scenario: Capabilities explained
     Given agent receives system prompt
-    When prompt is displayed
-    Then prompt contains ASCII tree structure of folders
-    And shows chat_dir/, history.txt, media/, agent_files/
+    When prompt is read
+    Then prompt states agent can do data analysis
+    And mentions: Excel, CSV, graphs, reports, calculations
 
-  Scenario: History format explained
-    Given agent needs to parse history
+  Scenario: Folder structure shown
+    Given agent needs to understand structure
     When system prompt is read
-    Then prompt contains format example: "[DD.MM HH:MM] Name: message"
-    And shows file format: "📄 filename → path"
+    Then prompt contains ASCII tree of folders
+    And shows: chat_dir/, history.txt, media/, agent_files/
 
-  Scenario: Code examples for common tasks
-    Given agent needs to work with Excel
+  Scenario: Compact responses rule
+    Given agent formats response
     When system prompt is read
-    Then prompt contains pandas read_excel example
-    And contains matplotlib savefig example with full paths
-    And contains os.makedirs for agent_files/
+    Then prompt says: NO markdown tables
+    And says: keep answers compact in chat
+    And says: move large content to .txt/.xlsx files
 
-  Scenario: Tool usage examples
-    Given agent needs to use tools
+  Scenario: Auto-send files explained
+    Given agent wants to send file to user
     When system prompt is read
-    Then prompt shows Read example with full path
-    And shows Grep example with pattern
-    And shows Glob example for finding files
-    And shows Bash example for commands
-
-  Scenario: Auto-send files mechanism
-    Given agent creates file
-    When system prompt is read
-    Then prompt explains mentioning file path triggers auto-send
-    And shows example: "{agent_files_dir}/chart.png"
-
-  Scenario: Typical task patterns
-    Given agent receives common request
-    When system prompt is read
-    Then prompt contains "find mentions" pattern
-    And contains "analyze Excel" pattern
-    And contains "create report" pattern
-
-  Scenario: Good and bad examples
-    Given agent needs formatting guidance
-    When system prompt is read
-    Then prompt shows bad example (markdown tables)
-    And shows good example (emoji lists)
-    And explains why each is good/bad
+    Then prompt says: write FULL path ONLY when you want to send file
+    And explains: mentioning full path auto-sends file to user
+    Example: "Готово: /app/chat_archive/chat_123/agent_files/chart.png"
 ```
 
 ---

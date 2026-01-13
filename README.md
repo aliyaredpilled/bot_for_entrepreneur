@@ -142,6 +142,7 @@ Feature: Text message archiving
 
 - **Курс Алексея Комиссарова** — «Программирование на естественном языке»
 - **Anthropic Engineering** — [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+- **Ralph for Claude Code** — [Autonomous coding agent framework](https://github.com/frankbria/ralph-claude-code)
 
 ---
 

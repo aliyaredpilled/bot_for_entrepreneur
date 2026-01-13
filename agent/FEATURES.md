@@ -393,6 +393,32 @@ Feature: Final response replaces status
     And no status prefix remains
 ```
 
+### 6.6 [ ] Чистые промежуточные реплики и дедупликация финала
+**Описание:** Промежуточные реплики без префикса "💭", и не редактировать если финал = последней реплике
+
+```gherkin
+Feature: Clean intermediate messages and deduplication
+
+  Scenario: Intermediate messages without thought bubble
+    Given agent outputs text block "Сейчас посмотрю в архиве..."
+    When status is shown
+    Then message shows "Сейчас посмотрю в архиве..."
+    And no "💭" prefix is added
+    And no emoji prefix at all
+
+  Scenario: Final response duplicates last intermediate
+    Given last status shows "Нашёл 15 файлов в архиве"
+    When agent finishes with final response "Нашёл 15 файлов в архиве"
+    Then status message is NOT edited
+    And no duplicate message appears
+
+  Scenario: Final response differs from last status
+    Given last status shows "⚙️ Строю график..."
+    When agent finishes with final response "Вот график продаж: chart.png"
+    Then status message is edited
+    And shows new final response
+```
+
 ---
 
 ## 7. Форматирование
@@ -499,11 +525,11 @@ Feature: Structured logging
 | 3. AI-агент | 4 | 4 | ✅ |
 | 4. Сессии и память | 3 | 3 | ✅ |
 | 5. Отправка файлов | 3 | 3 | ✅ |
-| 6. UX: Live-статусы | 5 | 4 | 🟡 |
+| 6. UX: Live-статусы | 6 | 4 | 🟡 |
 | 7. Форматирование | 1 | 1 | ✅ |
 | 8. Docker | 2 | 2 | ✅ |
 | 9. Логирование | 1 | 0 | ⬜ |
-| **ИТОГО** | **25** | **23** | **92%** |
+| **ИТОГО** | **26** | **23** | **88%** |
 
 ---
 

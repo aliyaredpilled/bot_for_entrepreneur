@@ -210,6 +210,7 @@ async def main():
     # ===== ОТПРАВКА ЧЕРЕЗ ФАЙЛ =====
 
     SEND_FILE = LOG_DIR / "send.txt"
+    COMMAND_FILE = LOG_DIR / "command.txt"
 
     async def send_file_watcher():
         """Следит за файлом send.txt и отправляет сообщения"""
@@ -227,7 +228,56 @@ async def main():
                 log(f"❌ Ошибка отправки: {e}", "ERROR")
             await asyncio.sleep(1)
 
+    async def command_file_watcher():
+        """Следит за файлом command.txt и выполняет команды"""
+        while True:
+            try:
+                if COMMAND_FILE.exists():
+                    command = COMMAND_FILE.read_text(encoding="utf-8").strip()
+                    if command and target_chat:
+                        # Формат: change_title:Новое название
+                        if ":" in command:
+                            cmd, value = command.split(":", 1)
+                            cmd = cmd.strip().lower()
+                            value = value.strip()
+
+                            if cmd == "change_title":
+                                # Работает для обычных групп и супергрупп
+                                from telethon.tl.functions.channels import EditTitleRequest
+                                from telethon.tl.functions.messages import EditChatTitleRequest
+                                try:
+                                    # Попытка для супергруппы/канала
+                                    await client(EditTitleRequest(
+                                        channel=target_chat,
+                                        title=value
+                                    ))
+                                except:
+                                    # Для обычной группы
+                                    await client(EditChatTitleRequest(
+                                        chat_id=target_chat.id,
+                                        title=value
+                                    ))
+                                log(f"✏️ Название изменено на: {value}")
+
+                            elif cmd == "change_photo":
+                                await client.edit_photo(target_chat, value)
+                                log(f"🖼️ Фото изменено: {value}")
+
+                            elif cmd == "add_member":
+                                await client.add_chat_user(target_chat, value)
+                                log(f"👤 Добавлен участник: {value}")
+
+                            else:
+                                log(f"⚠️ Неизвестная команда: {cmd}", "WARN")
+                        else:
+                            log("⚠️ Неверный формат команды. Используй: команда:значение", "WARN")
+                    COMMAND_FILE.unlink()
+            except Exception as e:
+                log(f"❌ Ошибка выполнения команды: {e}", "ERROR")
+            await asyncio.sleep(1)
+
     asyncio.create_task(send_file_watcher())
+    asyncio.create_task(command_file_watcher())
 
     # ===== ПЕРИОДИЧЕСКАЯ СТАТИСТИКА =====
 
@@ -243,6 +293,8 @@ async def main():
 
     log("🎧 Слушаю события... (Ctrl+C для выхода)")
     log(f"📝 Для отправки: echo 'текст' > {SEND_FILE}")
+    log(f"🎮 Для команд: echo 'команда:значение' > {COMMAND_FILE}")
+    log(f"   Команды: change_title:Название | change_photo:path | add_member:user_id")
 
     try:
         await client.run_until_disconnected()

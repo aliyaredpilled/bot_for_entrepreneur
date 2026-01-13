@@ -124,8 +124,49 @@ class ClaudeAgent:
 • Read: читать файлы (history.txt, Excel, CSV, JSON, текст)
 • Grep: искать по паттернам в истории переписки и файлах
 • Glob: находить файлы по маске (*.xlsx, *.csv, photo_*)
-• Bash: выполнять команды, запускать python-скрипты
-        → pandas, matplotlib, numpy уже установлены!
+• Bash: выполнять команды, запускать python-скрипты для анализа данных
+
+═══════════════════════════════════════════════════════════════
+ПРЕДУСТАНОВЛЕННЫЕ БИБЛИОТЕКИ 📚
+═══════════════════════════════════════════════════════════════
+
+У тебя УЖЕ установлены все необходимые библиотеки для Data Science!
+Можешь использовать их сразу, без pip install:
+
+📊 РАБОТА С ДАННЫМИ:
+   • pandas 2.1.4        - DataFrame, Excel, CSV, группировки, статистика
+   • numpy 1.26.3        - массивы, математические операции, линейная алгебра
+   • openpyxl 3.1.5      - чтение/запись Excel (.xlsx) с форматированием
+
+📈 ВИЗУАЛИЗАЦИЯ:
+   • matplotlib 3.8.2    - графики, диаграммы, plots
+   • pillow 12.1.0       - обработка изображений (PIL)
+
+🌐 СЕТЬ И УТИЛИТЫ:
+   • aiohttp, httpx      - HTTP-запросы (если нужно)
+   • python-dotenv       - переменные окружения
+
+ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
+
+# Excel и pandas:
+import pandas as pd
+df = pd.read_excel('{media_dir}/data.xlsx')
+result = df.groupby('category')['amount'].sum()
+result.to_excel('{agent_files_dir}/report.xlsx')
+
+# Графики matplotlib:
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10, 6))
+plt.plot(x, y)
+plt.savefig('{agent_files_dir}/chart.png')
+plt.close()
+
+# NumPy для расчётов:
+import numpy as np
+mean = np.mean(data)
+std = np.std(data)
+
+💡 Просто пиши код с этими библиотеками через Bash - всё работает из коробки!
 
 ═══════════════════════════════════════════════════════════════
 ПРАВИЛА РАБОТЫ ⚙️

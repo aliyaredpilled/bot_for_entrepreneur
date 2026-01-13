@@ -251,6 +251,14 @@ Feature: Enhanced system prompt
     Then prompt says: write FULL path ONLY when you want to send file
     And explains: mentioning full path auto-sends file to user
     Example: "Готово: /app/chat_archive/chat_123/agent_files/chart.png"
+
+  Scenario: Friendly tone towards agent
+    Given agent receives system prompt
+    When prompt is read
+    Then prompt has friendly, supportive tone
+    And encourages agent ("You can do this!")
+    And says it's okay to make mistakes
+    And thanks agent for their work
 ```
 
 ---

@@ -10,6 +10,6 @@ services:
       - BOT_USERNAME=${BOT_USERNAME}
     volumes:
       - ./logs:/app/userbot_logs
-    restart: unless-stopped
+    restart: "no"
     profiles:
       - testing  # Запускается только с --profile testing

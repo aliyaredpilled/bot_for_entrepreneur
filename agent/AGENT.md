@@ -13,24 +13,24 @@
 ls -la
 
 # Текущий прогресс
-cat progress.txt
+cat agent/progress.txt
 
 # Техническое задание
-cat product_description.md
+cat agent/product_description.md
 
 # Список фич и BDD тестов
-cat FEATURES.md
+cat agent/FEATURES.md
 
 # Советы по Claude Agent SDK
-cat claude_agent_sdk_tips.md
+cat agent/claude_agent_sdk_tips.md
 
 # Советы по Telethon userbot
-cat telegram_userbot_tips.md
+cat agent/telegram_userbot_tips.md
 ```
 
 ### 2. Выбери задачу
 
-1. Открой `FEATURES.md`
+1. Открой `agent/FEATURES.md`
 2. Найди задачу со статусом `[ ]` (TODO)
 3. Выбери задачу по приоритету:
    - Сначала базовые модули (1-4)
@@ -39,11 +39,11 @@ cat telegram_userbot_tips.md
 
 ### 3. Начни работу
 
-1. **Поменяй статус на `[~]`** (IN_PROGRESS) в `FEATURES.md`
-2. Обнови `progress.txt` — укажи что делаешь
+1. **Поменяй статус на `[~]`** (IN_PROGRESS) в `agent/FEATURES.md`
+2. Обнови `agent/progress.txt` — укажи что делаешь
 3. Закоммить изменение статуса:
    ```bash
-   git add FEATURES.md progress.txt
+   git add agent/FEATURES.md agent/progress.txt
    git commit -m "Start work on: <название задачи>"
    ```
 
@@ -51,8 +51,8 @@ cat telegram_userbot_tips.md
 
 - Работай в Docker-контейнере
 - Используй `docker compose` (без тире!)
-- Следуй BDD сценариям из `FEATURES.md`
-- Сверяйся с ТЗ в `product_description.md`
+- Следуй BDD сценариям из `agent/FEATURES.md`
+- Сверяйся с ТЗ в `agent/product_description.md`
 
 ```bash
 # Сборка
@@ -97,9 +97,9 @@ cat logs/log_$(date +%Y%m%d).txt
 
 Только после успешного теста:
 
-1. **Поменяй статус на `[x]`** (DONE) в `FEATURES.md`
-2. Обнови таблицу прогресса внизу `FEATURES.md`
-3. Обнови `progress.txt`
+1. **Поменяй статус на `[x]`** (DONE) в `agent/FEATURES.md`
+2. Обнови таблицу прогресса внизу `agent/FEATURES.md`
+3. Обнови `agent/progress.txt`
 4. Закоммить и запушь:
    ```bash
    git add -A
@@ -143,28 +143,29 @@ cat logs/log_$(date +%Y%m%d).txt
 
 ```
 bot_for_entrepreneur/
-├── AGENT.md                 # ЭТА ИНСТРУКЦИЯ
-├── FEATURES.md              # Фичи и BDD тесты
-├── progress.txt             # Текущий статус
-├── product_description.md   # Техническое задание
-├── claude_agent_sdk_tips.md # Советы по SDK
-├── telegram_userbot_tips.md # Советы по Telethon
-├── .env                     # Секреты (не коммитить!)
-├── .gitignore
+├── agent/                       # Документация для агентов
+│   ├── AGENT.md                 # ЭТА ИНСТРУКЦИЯ
+│   ├── FEATURES.md              # Фичи и BDD тесты
+│   ├── progress.txt             # Текущий статус
+│   ├── product_description.md   # Техническое задание
+│   ├── claude_agent_sdk_tips.md # Советы по SDK
+│   └── telegram_userbot_tips.md # Советы по Telethon
 │
-├── src/                     # Исходный код бота (создать)
+├── src/                         # Исходный код бота (создать)
 │   ├── bot.py
 │   ├── agent.py
 │   ├── archiver.py
 │   └── ...
 │
-├── userbot_tester/          # Тестер
+├── userbot_tester/              # Тестер
 │   ├── userbot.py
 │   ├── docker-compose.yml
 │   └── ...
 │
-├── Dockerfile               # Образ бота (создать)
-└── docker-compose.yml       # Оркестрация (создать)
+├── .env                         # Секреты (не коммитить!)
+├── .gitignore
+├── Dockerfile                   # Образ бота (создать)
+└── docker-compose.yml           # Оркестрация (создать)
 ```
 
 ---
@@ -175,7 +176,7 @@ bot_for_entrepreneur/
 2. **Архивация текста** (1.1-1.3) — базовый функционал
 3. **AI-агент базовый** (3.1-3.2) — интеграция Claude SDK
 4. **Сессии** (4.1-4.3) — память между сообщениями
-5. **Остальное** — по порядку в FEATURES.md
+5. **Остальное** — по порядку в agent/FEATURES.md
 
 ---
 

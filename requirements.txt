@@ -1,0 +1,13 @@
+# Telegram bot framework
+aiogram==3.13.1
+
+# Claude Agent SDK
+claude-agent-sdk
+
+# Data analysis and visualization
+pandas==2.1.4
+matplotlib==3.8.2
+numpy==1.26.3
+
+# Utilities
+python-dotenv==1.0.0

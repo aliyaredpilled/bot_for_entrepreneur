@@ -1,0 +1,11 @@
+services:
+  bot:
+    build: .
+    container_name: telegram-ai-bot
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}
+      - SESSION_TIMEOUT=${SESSION_TIMEOUT:-1800}
+    volumes:
+      - ./chat_archive:/app/chat_archive
+    restart: unless-stopped

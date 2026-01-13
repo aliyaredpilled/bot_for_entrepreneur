@@ -428,7 +428,7 @@ Feature: Markdown to HTML conversion
 
 ## 8. Docker & Инфраструктура
 
-### 8.1 [~] Dockerfile с зависимостями
+### 8.1 [x] Dockerfile с зависимостями
 **Описание:** Образ с Python, pandas, matplotlib, jq
 
 ```gherkin
@@ -443,7 +443,7 @@ Feature: Docker image
     And jq command works
 ```
 
-### 8.2 [~] docker-compose.yml
+### 8.2 [x] docker-compose.yml
 **Описание:** Оркестрация сервисов с volumes и env
 
 ```gherkin
@@ -501,9 +501,9 @@ Feature: Structured logging
 | 5. Отправка файлов | 3 | 0 | ⬜ |
 | 6. UX: Live-статусы | 5 | 0 | ⬜ |
 | 7. Форматирование | 1 | 0 | ⬜ |
-| 8. Docker | 2 | 0 | ⬜ |
+| 8. Docker | 2 | 2 | ✅ |
 | 9. Логирование | 1 | 0 | ⬜ |
-| **ИТОГО** | **25** | **0** | **0%** |
+| **ИТОГО** | **25** | **2** | **8%** |
 
 ---
 

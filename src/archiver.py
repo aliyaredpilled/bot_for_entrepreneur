@@ -226,7 +226,8 @@ class ChatArchiver:
         # Запись в history.txt
         timestamp_display = self._format_timestamp()
         user_name = self._get_user_name(message.from_user)
-        line = f"{timestamp_display} {user_name}: 📷 {filename} → media/{filename}\n"
+        full_path = f"/app/chat_archive/chat_{self.chat_id}/media/{filename}"
+        line = f"{timestamp_display} {user_name} отправил файл 📷 {filename} - полный путь {full_path}\n"
 
         with open(self.history_file, 'a', encoding='utf-8') as f:
             f.write(line)
@@ -271,7 +272,8 @@ class ChatArchiver:
         # Запись в history.txt
         timestamp_display = self._format_timestamp()
         user_name = self._get_user_name(message.from_user)
-        line = f"{timestamp_display} {user_name}: 📄 {filename} → media/{filename}\n"
+        full_path = f"/app/chat_archive/chat_{self.chat_id}/media/{filename}"
+        line = f"{timestamp_display} {user_name} отправил файл 📄 {filename} - полный путь {full_path}\n"
 
         with open(self.history_file, 'a', encoding='utf-8') as f:
             f.write(line)
@@ -302,7 +304,8 @@ class ChatArchiver:
         # Запись в history.txt
         timestamp_display = self._format_timestamp()
         user_name = self._get_user_name(message.from_user)
-        line = f"{timestamp_display} {user_name}: 🎤 {filename} → media/{filename}\n"
+        full_path = f"/app/chat_archive/chat_{self.chat_id}/media/{filename}"
+        line = f"{timestamp_display} {user_name} отправил файл 🎤 {filename} - полный путь {full_path}\n"
 
         with open(self.history_file, 'a', encoding='utf-8') as f:
             f.write(line)
@@ -333,9 +336,75 @@ class ChatArchiver:
         # Запись в history.txt
         timestamp_display = self._format_timestamp()
         user_name = self._get_user_name(message.from_user)
-        line = f"{timestamp_display} {user_name}: 🎥 {filename} → media/{filename}\n"
+        full_path = f"/app/chat_archive/chat_{self.chat_id}/media/{filename}"
+        line = f"{timestamp_display} {user_name} отправил файл 🎥 {filename} - полный путь {full_path}\n"
 
         with open(self.history_file, 'a', encoding='utf-8') as f:
             f.write(line)
 
         logger.info(f"[ARCHIVE] Saved video note {filename} from {user_name} in chat_id={self.chat_id}")
+
+    def archive_bot_response(self, text: str):
+        """
+        Сохранение текстового ответа бота в history.txt (задача 1.4)
+
+        Формат: [DD.MM HH:MM] 🤖 Бот: текст ответа
+
+        Args:
+            text: Текст ответа бота
+        """
+        if not text:
+            return
+
+        timestamp = self._format_timestamp()
+        # Убираем переносы строк для компактности
+        text_oneline = text.replace('\n', ' ')
+        line = f"{timestamp} 🤖 Бот: {text_oneline}\n"
+
+        with open(self.history_file, 'a', encoding='utf-8') as f:
+            f.write(line)
+
+        logger.info(f"[ARCHIVE] Saved bot response in chat_id={self.chat_id}")
+
+    def archive_bot_file(self, filepath: str):
+        """
+        Сохранение информации об отправленном боте файле в history.txt (задача 1.4)
+
+        Формат: [DD.MM HH:MM] 🤖 Бот отправил файл 📊 filename - полный путь /app/chat_archive/chat_ID/agent_files/filename
+
+        Args:
+            filepath: Полный путь к отправленному файлу
+        """
+        if not filepath:
+            return
+
+        timestamp = self._format_timestamp()
+
+        # Извлекаем имя файла
+        path = Path(filepath)
+        filename = path.name
+
+        # Определяем директорию (media/ или agent_files/) и иконку
+        if 'media' in filepath:
+            icon = "📷" if filename.startswith('photo_') else "📄"
+        elif 'agent_files' in filepath:
+            # Определяем тип файла по расширению
+            ext = path.suffix.lower()
+            if ext in ['.png', '.jpg', '.jpeg', '.gif']:
+                icon = "📊"  # График/изображение
+            elif ext in ['.csv', '.xlsx', '.xls']:
+                icon = "📊"  # Данные
+            else:
+                icon = "📄"  # Документ
+        else:
+            icon = "📄"
+
+        # Формируем полный путь с правильным chat_id
+        full_path = filepath
+
+        line = f"{timestamp} 🤖 Бот отправил файл {icon} {filename} - полный путь {full_path}\n"
+
+        with open(self.history_file, 'a', encoding='utf-8') as f:
+            f.write(line)
+
+        logger.info(f"[ARCHIVE] Saved bot file record: {filename} in chat_id={self.chat_id}")

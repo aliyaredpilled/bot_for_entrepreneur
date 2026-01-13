@@ -168,6 +168,9 @@ async def handle_agent_query(message: Message, archiver: ChatArchiver):
         # Заменяем статус на финальный ответ с HTML-форматированием
         await status_msg.edit_text(formatted_response, parse_mode=ParseMode.HTML)
 
+        # Архивируем ответ бота (задача 1.4)
+        archiver.archive_bot_response(response)
+
         logger.info(f"[AGENT] Response sent to chat_id={chat_id}")
 
         # Отправка найденных файлов (задача 5.2)
@@ -182,14 +185,20 @@ async def handle_agent_query(message: Message, archiver: ChatArchiver):
                     if file_type == 'photo':
                         await message.answer_photo(photo=input_file)
                         logger.info(f"[FILES] Sent photo: {filepath}")
+                        # Архивируем отправленный файл (задача 1.4)
+                        archiver.archive_bot_file(filepath)
 
                     elif file_type == 'video':
                         await message.answer_video(video=input_file)
                         logger.info(f"[FILES] Sent video: {filepath}")
+                        # Архивируем отправленный файл (задача 1.4)
+                        archiver.archive_bot_file(filepath)
 
                     else:  # document
                         await message.answer_document(document=input_file)
                         logger.info(f"[FILES] Sent document: {filepath}")
+                        # Архивируем отправленный файл (задача 1.4)
+                        archiver.archive_bot_file(filepath)
 
                 except Exception as e:
                     logger.error(f"[FILES] Error sending file {filepath}: {e}", exc_info=True)

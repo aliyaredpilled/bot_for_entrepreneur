@@ -140,10 +140,17 @@ async def handle_agent_query(message: Message, archiver: ChatArchiver):
     # Создаём статусное сообщение
     status_msg = await message.answer("⏳ Секунду...")
 
+    # Переменная для отслеживания последнего статуса (задача 6.6)
+    last_status_text = "⏳ Секунду..."
+
     # Колбэк для обновления статуса
     async def update_status(text: str):
+        nonlocal last_status_text
         try:
-            await status_msg.edit_text(text)
+            # Форматируем markdown → HTML для промежуточных статусов (задача 6.6)
+            formatted_text = markdown_to_telegram_html(text)
+            await status_msg.edit_text(formatted_text, parse_mode=ParseMode.HTML)
+            last_status_text = text  # Сохраняем оригинальный текст (без HTML) для сравнения
         except Exception as e:
             logger.debug(f"[STATUS] Could not update status: {e}")
 
@@ -165,8 +172,14 @@ async def handle_agent_query(message: Message, archiver: ChatArchiver):
         # Форматируем markdown → HTML (задача 7.1)
         formatted_response = markdown_to_telegram_html(masked_response)
 
-        # Заменяем статус на финальный ответ с HTML-форматированием
-        await status_msg.edit_text(formatted_response, parse_mode=ParseMode.HTML)
+        # Дедупликация: не редактируем если финальный ответ совпадает с последним статусом (задача 6.6)
+        # Сравниваем без HTML-форматирования для корректности
+        if masked_response.strip() != last_status_text.strip():
+            # Заменяем статус на финальный ответ с HTML-форматированием
+            await status_msg.edit_text(formatted_response, parse_mode=ParseMode.HTML)
+            logger.debug(f"[STATUS] Final response updated (different from last status)")
+        else:
+            logger.info(f"[STATUS] Final response matches last status, skipping edit (deduplication)")
 
         # Архивируем ответ бота (задача 1.4)
         archiver.archive_bot_response(response)

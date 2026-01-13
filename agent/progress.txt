@@ -3,33 +3,39 @@
 ================================================================================
 
 Последнее обновление: 2026-01-14
-Текущий статус: Улучшен системный промпт, осталось 2 задачи
+Текущий статус: Завершена задача 6.6, осталась 1 задача (9.1 Логирование)
 
 ================================================================================
                               ТЕКУЩАЯ ЗАДАЧА
 ================================================================================
 
-Задача: 6.6 Чистые промежуточные реплики и дедупликация финала
-Статус: В работе
-Агент:  Claude
+Задача: -
+Статус: Ожидание начала работы
+Агент:  -
 
 ================================================================================
                                  ПРОГРЕСС
 ================================================================================
 
-Готово:     26 / 28 задач (93%)
+Готово:     27 / 28 задач (96%)
 В работе:   0
-Осталось:   2
+Осталось:   1
 
-[███████████████████░] 93%
+[███████████████████▓] 96%
 
 Осталось:
-- [ ] 6.6 Чистые промежуточные реплики и дедупликация финала
 - [ ] 9.1 Логирование
 
 ================================================================================
                               ЗАВЕРШЁННЫЕ ЗАДАЧИ
 ================================================================================
+
+[2026-01-14] ✅ 6.6 Чистые промежуточные реплики и дедупликация финала
+             - Убран префикс "💭" из промежуточных реплик (agent.py:355)
+             - Реализована дедупликация: финал не редактирует если совпадает с последним статусом
+             - Добавлено HTML-форматирование для промежуточных статусов (bot.py:150-152)
+             - Переменная last_status_text отслеживает последний статус
+             - Протестировано: чистые реплики, дедупликация работает, HTML везде
 
 [2026-01-14] ✅ 3.5 Улучшенный системный промпт
              - Добавлен раздел "ЧТО ТЫ УМЕЕШЬ" с описанием возможностей
@@ -1507,5 +1513,93 @@
              All BDD scenarios PASSED! 🎉📋
              Enhanced system prompt is production-ready.
              MODULE 3 (AI-агент) COMPLETE: 5/5 tasks (100%) ✨
+
+================================================================================
+
+[2026-01-14] ✅ Завершена задача 6.6 - Чистые промежуточные реплики и дедупликация
+             - Убран префикс "💭" из промежуточных реплик агента
+             - Реализована дедупликация финального ответа
+             - Добавлено HTML-форматирование для промежуточных статусов
+             - Сравнение текстов без HTML для точности дедупликации
+
+
+[2026-01-14] 🧪 BDD TEST REPORT: Чистые промежуточные реплики и дедупликация (6.6)
+
+             ═══════════════════════════════════════════════════════════════
+             Feature 6.6: Clean intermediate messages and deduplication
+             ═══════════════════════════════════════════════════════════════
+
+             Scenario 1: Intermediate messages without thought bubble
+               Status: ✅ PASSED
+
+               Given agent outputs text block "Посчитаю количество сообщений!"
+               When status is shown via throttled_status_update()
+               Then message shows clean text without "💭" prefix
+                 And markdown is formatted to HTML
+
+               Evidence:
+                 Userbot logs:
+                   [20:52:17] ✏️ БОТ EDIT | Посчитаю количество сообщений в истории переписки! 📊
+                   [20:52:45] ✏️ БОТ EDIT | Создам простой CSV файл с тремя строками! 📝
+
+                 Code: agent.py:355
+                   OLD: await throttled_status_update(f"💭 {block.text}")
+                   NEW: await throttled_status_update(block.text)
+
+             Scenario 2: Final response duplicates last intermediate
+               Status: ✅ PASSED
+
+               Given last status shows "📨 **Всего сообщений: 78**..."
+               When agent finishes with identical final response
+               Then status message is NOT edited (deduplication)
+
+               Evidence:
+                 Bot logs: [STATUS] Final response matches last status, skipping edit
+
+                 Code: bot.py:175-180
+                   if masked_response.strip() != last_status_text.strip():
+                       await status_msg.edit_text(...)
+                   else:
+                       logger.info("...skipping edit (deduplication)")
+
+             Scenario 3: Intermediate statuses are HTML-formatted
+               Status: ✅ PASSED
+
+               Given intermediate message contains markdown "**bold**"
+               When status is updated
+               Then markdown is converted to HTML
+
+               Evidence:
+                 Code: bot.py:150-152
+                   formatted_text = markdown_to_telegram_html(text)
+                   await status_msg.edit_text(formatted_text, parse_mode=ParseMode.HTML)
+
+             ═══════════════════════════════════════════════════════════════
+             TEST SUMMARY
+             ═══════════════════════════════════════════════════════════════
+
+             Total Scenarios: 3
+             Passed: ✅ 3 (100%)
+
+             Critical Features:
+               ✅ Промежуточные реплики БЕЗ префикса "💭"
+               ✅ Дедупликация финального ответа работает
+               ✅ HTML-форматирование для всех статусов
+               ✅ Переменная last_status_text отслеживает последний статус
+
+             Test Environment:
+               - Chat ID: -5022916429
+               - Bot: @useful_and_chill_bot
+               - Test Method: Real Telegram integration testing
+
+             User Experience Improvements:
+               🎯 Чистые промежуточные реплики - легче читать
+               ⚡ Дедупликация - нет мерцания при одинаковом тексте
+               🎨 HTML-форматирование везде - единообразный стиль
+
+             All BDD scenarios PASSED! 🎉✨
+             Task 6.6 production-ready!
+
+             ✨ MODULE 6 (UX: Live-статусы) COMPLETE: 6/6 tasks (100%) ✨
 
 ================================================================================

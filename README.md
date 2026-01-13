@@ -112,6 +112,13 @@ Feature: Text message archiving
 
 Агент следует этим сценариям при реализации и тестировании.
 
+### Вдохновение
+
+Подход к организации агентного кодинга основан на:
+
+- **Курс Алексея Комиссарова** — «Программирование на естественном языке»
+- **Anthropic Engineering** — [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+
 ---
 
 ## Технологии

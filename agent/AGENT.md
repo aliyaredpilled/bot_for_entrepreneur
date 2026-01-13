@@ -49,7 +49,8 @@ cat agent/telegram_userbot_tips.md
 3. Закоммить изменение статуса:
    ```bash
    git add agent/FEATURES.md agent/progress.txt
-   git commit -m "Start work on: <название задачи>"
+   git commit -m "Start work on: <номер> <название>"
+   # Пример: git commit -m "Start work on: 8.1 Dockerfile с зависимостями"
    ```
 
 ### 4. Реализуй фичу
@@ -144,7 +145,7 @@ def test_bold_conversion():
 4. Закоммить и запушь:
    ```bash
    git add -A
-   git commit -m "Complete: <название задачи>
+   git commit -m "Complete: <номер> <название>
 
    - Что сделано
    - Как протестировано
@@ -152,6 +153,14 @@ def test_bold_conversion():
    Co-Authored-By: Claude <agent@anthropic.com>"
 
    git push
+
+   # Пример:
+   # git commit -m "Complete: 8.1 Dockerfile с зависимостями
+   #
+   # - Создан Dockerfile с Python 3.11, pandas, matplotlib
+   # - Проверено: docker compose up работает, контейнер running
+   #
+   # Co-Authored-By: Claude <agent@anthropic.com>"
    ```
 
 ---

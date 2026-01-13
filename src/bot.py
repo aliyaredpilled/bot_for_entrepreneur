@@ -8,8 +8,10 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 from aiogram.filters import Command
+from aiogram.enums import ParseMode
 from archiver import ChatArchiver
 from agent import ClaudeAgent
+from formatter import markdown_to_telegram_html
 
 # Настройка логирования
 logging.basicConfig(
@@ -153,8 +155,11 @@ async def handle_agent_query(message: Message, archiver: ChatArchiver):
             on_status_update=update_status
         )
 
-        # Заменяем статус на финальный ответ
-        await status_msg.edit_text(response)
+        # Форматируем markdown → HTML (задача 7.1)
+        formatted_response = markdown_to_telegram_html(response)
+
+        # Заменяем статус на финальный ответ с HTML-форматированием
+        await status_msg.edit_text(formatted_response, parse_mode=ParseMode.HTML)
 
         logger.info(f"[AGENT] Response sent to chat_id={chat_id}")
 
